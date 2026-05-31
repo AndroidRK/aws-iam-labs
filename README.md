@@ -1,207 +1,168 @@
-# aws-iam-labs# AWS IAM Lab 1: Creating an EC2 Read-Only User with a Custom IAM Policy
+aws-iam-labs# AWS IAM Lab 2: AWS IAM Groups-Based Access Control Lab
+## Overview
 
-## Project Overview
-
-This lab demonstrates how to implement the Principle of Least Privilege in AWS Identity and Access Management (IAM). A custom IAM policy was created to allow a user to view EC2 resources while preventing them from launching or terminating EC2 instances.
-
----
+This lab demonstrates how to implement Role-Based Access Control (RBAC) in AWS Identity and Access Management (IAM) using IAM Groups. Instead of assigning permissions directly to individual users, permissions are managed through groups, making access control more scalable and easier to maintain.
 
 ## Objective
 
-The objective of this lab was to:
+The goal of this lab was to:
 
-* Create an IAM user named `ec2-auditor`
-* Create a custom IAM policy
-* Allow EC2 read-only access using `ec2:Describe*`
-* Prevent instance creation using `ec2:RunInstances`
-* Prevent instance termination using `ec2:TerminateInstances`
-* Validate the permissions by logging in as the IAM user
+* Create IAM groups with specific permission sets.
+* Assign users to groups based on their responsibilities.
+* Validate access permissions through user testing.
+* Implement a basic RBAC model using AWS IAM.
 
 ---
 
 ## Architecture
 
-AWS Account
-│
-├── IAM User (ec2-auditor)
-│
-└── Custom IAM Policy
-├── Allow: ec2:Describe*
-├── Deny: ec2:RunInstances
-└── Deny: ec2:TerminateInstances
+### IAM Groups
 
----
+| Group Name | Permission Policy   |
+| ---------- | ------------------- |
+| Developers | AmazonEC2FullAccess |
+| Auditors   | ReadOnlyAccess      |
 
-## Services Used
+### IAM Users
 
-* AWS IAM
-* Amazon EC2
+| User   | Group      |
+| ------ | ---------- |
+| dev1   | Developers |
+| dev2   | Developers |
+| audit1 | Auditors   |
 
 ---
 
 ## Implementation Steps
 
-### Step 1: Create IAM User
+### Step 1: Create IAM Groups
 
-1. Open AWS Console
-2. Navigate to IAM
-3. Select Users
-4. Click Create User
-5. User Name: ec2-auditor
-6. Enable AWS Management Console access
-7. Create password
+#### Developers Group
 
-Result:
-IAM user successfully created.
+Created an IAM group named **Developers** and attached the following AWS managed policy:
 
----
+* AmazonEC2FullAccess
 
-### Step 2: Create Custom Policy
+This policy grants full administrative access to Amazon EC2 resources.
 
-Navigate to:
+#### Auditors Group
 
-IAM → Policies → Create Policy
+Created an IAM group named **Auditors** and attached the following AWS managed policy:
 
-Policy JSON:
+* ReadOnlyAccess
 
-{
-"Version": "2012-10-17",
-"Statement": [
-{
-"Sid": "AllowEC2DescribeActions",
-"Effect": "Allow",
-"Action": [
-"ec2:Describe*"
-],
-"Resource": "*"
-},
-{
-"Sid": "DenyInstanceCreateAndDelete",
-"Effect": "Deny",
-"Action": [
-"ec2:RunInstances",
-"ec2:TerminateInstances"
-],
-"Resource": "*"
-}
-]
-}
-
-Policy Name:
-EC2ReadOnlyCustomPolicy
-
-Result:
-Policy created successfully.
+This policy provides read-only access across AWS services.
 
 ---
 
-### Step 3: Attach Policy to User
+### Step 2: Create IAM Users
 
-1. Open IAM Users
-2. Select ec2-auditor
-3. Add Permissions
-4. Attach Existing Policy
-5. Select EC2ReadOnlyCustomPolicy
+Created the following IAM users:
 
-Result:
-Policy attached successfully.
+* dev1
+* dev2
+* audit1
 
----
-
-### Step 4: Test User Access
-
-Login using the IAM user credentials.
-
-Testing Performed:
-
-Test 1:
-Action: View EC2 Dashboard
-Expected Result: Allowed
-Actual Result: Allowed
-
-Test 2:
-Action: View Running Instances
-Expected Result: Allowed
-Actual Result: Allowed
-
-Test 3:
-Action: Launch New EC2 Instance
-Expected Result: Denied
-Actual Result: Access Denied
-
-Test 4:
-Action: Terminate Existing Instance
-Expected Result: Denied
-Actual Result: Access Denied
+Each user was configured with appropriate login credentials for testing purposes.
 
 ---
 
-## Validation Results
+### Step 3: Assign Users to Groups
 
-| Test Case          | Expected | Actual | Status |
-| ------------------ | -------- | ------ | ------ |
-| View EC2 Dashboard | Allow    | Allow  | Pass   |
-| View Instances     | Allow    | Allow  | Pass   |
-| Launch Instance    | Deny     | Deny   | Pass   |
-| Terminate Instance | Deny     | Deny   | Pass   |
+Added users to their respective groups:
 
----
+#### Developers Group
 
-## Screenshots
+* dev1
+* dev2
 
-Screenshot 1:
-IAM User Creation
+#### Auditors Group
 
-Screenshot 2:
-Custom Policy JSON
+* audit1
 
-Screenshot 3:
-Policy Attached to User
-
-Screenshot 4:
-Successful EC2 Dashboard Access
-
-Screenshot 5:
-Access Denied While Launching Instance
-
-Screenshot 6:
-Access Denied While Terminating Instance
+By assigning permissions through groups, individual user permission management is minimized.
 
 ---
 
-## Key IAM Concepts Learned
+## Verification and Testing
 
-### Principle of Least Privilege
+### Test Case 1: Developer Access
 
-Users should receive only the permissions required to perform their job responsibilities.
+**User:** dev1
 
-### Explicit Deny
+**Expected Result:**
 
-An explicit Deny always overrides an Allow statement in IAM policy evaluation.
+* Can launch EC2 instances.
+* Can stop/start EC2 instances.
+* Can manage EC2 resources.
 
-### Resource Visibility
+**Actual Result:**
 
-The user can view EC2 resources through Describe actions without being able to modify them.
+* Successfully launched an EC2 instance.
+* Full EC2 management access confirmed.
 
----
-
-## Challenges Faced
-
-* Understanding IAM policy syntax
-* Identifying required EC2 actions
-* Testing permissions using a separate IAM user
+**Status:** Passed
 
 ---
 
-## Best Practices Implemented
+### Test Case 2: Auditor Access
 
-* Used custom policy instead of AdministratorAccess
-* Followed least privilege principle
-* Avoided sharing root account credentials
-* Tested permissions before production use
+**User:** audit1
+
+**Expected Result:**
+
+* Can view AWS resources.
+* Cannot create, modify, or delete resources.
+
+**Actual Result:**
+
+* Successfully viewed AWS resources.
+* Access denied when attempting administrative actions.
+
+**Status:** Passed
 
 ---
 
-## Conclusion
+## Security Best Practices Demonstrated
 
-This lab successfully demonstrated how to create a custom IAM policy that provides EC2 read-only access while preventing instance creation and termination. The implementation improved understanding of IAM users, custom policies, explicit deny statements, and AWS security best practices.
+* Principle of Least Privilege
+* Group-Based Permission Management
+* Role-Based Access Control (RBAC)
+* Centralized Access Administration
+* Reduced Permission Duplication
+
+---
+
+## Benefits of IAM Groups
+
+1. Simplified permission management.
+2. Easier onboarding and offboarding of users.
+3. Consistent access control across teams.
+4. Reduced risk of permission misconfiguration.
+5. Scalable security administration.
+
+---
+
+## Skills Practiced
+
+* AWS IAM
+* IAM Groups
+* User Management
+* AWS Managed Policies
+* Access Control
+* Role-Based Access Control (RBAC)
+* Cloud Security Fundamentals
+
+---
+
+## Outcome
+
+Successfully implemented an IAM Groups-based access control model in AWS. Permissions were managed through groups rather than direct user assignments, demonstrating a scalable and secure approach to identity and access management.
+
+### Final Validation
+
+✅ Developers group members can manage EC2 resources.
+
+✅ Auditors group members have read-only access.
+
+✅ RBAC model successfully implemented using IAM Groups.
