@@ -1,168 +1,217 @@
-aws-iam-labs# AWS IAM Lab 2: AWS IAM Groups-Based Access Control Lab
+# AWS IAM Lab 6: Password Policy and Security Audit
+
 ## Overview
 
-This lab demonstrates how to implement Role-Based Access Control (RBAC) in AWS Identity and Access Management (IAM) using IAM Groups. Instead of assigning permissions directly to individual users, permissions are managed through groups, making access control more scalable and easier to maintain.
+This lab demonstrates how to strengthen AWS account security by configuring a strong IAM password policy and performing a security audit using the IAM Credential Report. The exercise helps identify security risks such as weak passwords, inactive users, and missing Multi-Factor Authentication (MFA).
 
 ## Objective
 
 The goal of this lab was to:
 
-* Create IAM groups with specific permission sets.
-* Assign users to groups based on their responsibilities.
-* Validate access permissions through user testing.
-* Implement a basic RBAC model using AWS IAM.
+* Configure a secure account password policy.
+* Enforce password complexity requirements.
+* Generate and analyze an IAM Credential Report.
+* Identify security issues related to user credentials.
+* Review MFA adoption and account usage.
 
 ---
 
-## Architecture
+## Password Policy Configuration
 
-### IAM Groups
+The following password policy was configured for the AWS account:
 
-| Group Name | Permission Policy   |
-| ---------- | ------------------- |
-| Developers | AmazonEC2FullAccess |
-| Auditors   | ReadOnlyAccess      |
+| Setting                    | Value         |
+| -------------------------- | ------------- |
+| Minimum Password Length    | 12 Characters |
+| Require Uppercase Letters  | Enabled       |
+| Require Lowercase Letters  | Enabled       |
+| Require Numbers            | Enabled       |
+| Require Special Characters | Enabled       |
 
-### IAM Users
+### Security Purpose
 
-| User   | Group      |
-| ------ | ---------- |
-| dev1   | Developers |
-| dev2   | Developers |
-| audit1 | Auditors   |
+This configuration helps protect AWS accounts from:
+
+* Weak password attacks
+* Brute-force attempts
+* Credential stuffing attacks
+* Unauthorized account access
 
 ---
 
 ## Implementation Steps
 
-### Step 1: Create IAM Groups
+### Step 1: Configure IAM Password Policy
 
-#### Developers Group
+1. Logged in to the AWS Management Console.
+2. Opened the IAM service.
+3. Navigated to **Account Settings**.
+4. Selected **Change Password Policy**.
+5. Configured the following settings:
 
-Created an IAM group named **Developers** and attached the following AWS managed policy:
+   * Minimum password length: 12 characters
+   * Require uppercase letters
+   * Require lowercase letters
+   * Require numbers
+   * Require special characters
+6. Saved the policy.
 
-* AmazonEC2FullAccess
-
-This policy grants full administrative access to Amazon EC2 resources.
-
-#### Auditors Group
-
-Created an IAM group named **Auditors** and attached the following AWS managed policy:
-
-* ReadOnlyAccess
-
-This policy provides read-only access across AWS services.
-
----
-
-### Step 2: Create IAM Users
-
-Created the following IAM users:
-
-* dev1
-* dev2
-* audit1
-
-Each user was configured with appropriate login credentials for testing purposes.
+**Result:** Strong password policy successfully enforced.
 
 ---
 
-### Step 3: Assign Users to Groups
+### Step 2: Generate IAM Credential Report
 
-Added users to their respective groups:
+1. Opened the IAM Console.
+2. Selected **Credential Report**.
+3. Clicked **Generate Report**.
+4. Downloaded the generated CSV report.
 
-#### Developers Group
+**Result:** IAM Credential Report successfully generated.
 
-* dev1
-* dev2
+---
 
-#### Auditors Group
+## Credential Report Review
 
-* audit1
+The credential report was analyzed to identify potential security concerns.
 
-By assigning permissions through groups, individual user permission management is minimized.
+### Password Age Review
+
+**Objective:**
+
+Identify users with old passwords that may require rotation.
+
+**Findings:**
+
+* Reviewed password age information for all IAM users.
+* Verified compliance with password management policies.
+
+---
+
+### Unused User Review
+
+**Objective:**
+
+Identify inactive IAM users.
+
+**Findings:**
+
+* Checked user login activity.
+* Identified users that had not recently accessed the AWS account.
+* Evaluated whether inactive accounts should be disabled or removed.
+
+---
+
+### MFA Status Review
+
+**Objective:**
+
+Verify Multi-Factor Authentication adoption.
+
+**Findings:**
+
+* Reviewed MFA status for all IAM users.
+* Identified users without MFA enabled.
+* Recommended MFA activation for improved security.
 
 ---
 
 ## Verification and Testing
 
-### Test Case 1: Developer Access
-
-**User:** dev1
+### Test Case 1: Password Policy Enforcement
 
 **Expected Result:**
 
-* Can launch EC2 instances.
-* Can stop/start EC2 instances.
-* Can manage EC2 resources.
+Passwords that do not meet complexity requirements should be rejected.
 
 **Actual Result:**
 
-* Successfully launched an EC2 instance.
-* Full EC2 management access confirmed.
+Passwords failing complexity requirements were denied.
 
-**Status:** Passed
+**Status:** Passed ✅
 
 ---
 
-### Test Case 2: Auditor Access
-
-**User:** audit1
+### Test Case 2: Credential Report Generation
 
 **Expected Result:**
 
-* Can view AWS resources.
-* Cannot create, modify, or delete resources.
+Credential report should be generated and downloadable.
 
 **Actual Result:**
 
-* Successfully viewed AWS resources.
-* Access denied when attempting administrative actions.
+Credential report successfully generated and downloaded.
 
-**Status:** Passed
+**Status:** Passed ✅
+
+---
+
+### Test Case 3: Security Audit Review
+
+**Expected Result:**
+
+Credential report should provide visibility into:
+
+* Password age
+* User activity
+* MFA status
+
+**Actual Result:**
+
+Successfully reviewed all required security indicators.
+
+**Status:** Passed ✅
 
 ---
 
 ## Security Best Practices Demonstrated
 
-* Principle of Least Privilege
-* Group-Based Permission Management
-* Role-Based Access Control (RBAC)
-* Centralized Access Administration
-* Reduced Permission Duplication
+* Strong Password Policy Enforcement
+* IAM Security Auditing
+* Credential Management
+* Multi-Factor Authentication (MFA)
+* Compliance Monitoring
+* Principle of Least Privilege Awareness
+* Continuous Security Review
 
 ---
 
-## Benefits of IAM Groups
+## Benefits of Credential Reports
 
-1. Simplified permission management.
-2. Easier onboarding and offboarding of users.
-3. Consistent access control across teams.
-4. Reduced risk of permission misconfiguration.
-5. Scalable security administration.
+1. Improved visibility into IAM user security posture.
+2. Easier compliance and audit preparation.
+3. Identification of inactive users.
+4. Detection of weak security configurations.
+5. Support for proactive security management.
 
 ---
 
 ## Skills Practiced
 
 * AWS IAM
-* IAM Groups
-* User Management
-* AWS Managed Policies
-* Access Control
-* Role-Based Access Control (RBAC)
+* Password Policy Management
+* IAM Credential Reports
+* Security Auditing
+* MFA Verification
+* Compliance Monitoring
 * Cloud Security Fundamentals
 
 ---
 
 ## Outcome
 
-Successfully implemented an IAM Groups-based access control model in AWS. Permissions were managed through groups rather than direct user assignments, demonstrating a scalable and secure approach to identity and access management.
+Successfully enhanced AWS account security by enforcing a strong password policy and conducting a credential audit using IAM Credential Reports. The audit process helped identify password management practices, inactive users, and MFA adoption status.
 
 ### Final Validation
 
-✅ Developers group members can manage EC2 resources.
+✅ Strong password policy configured successfully.
 
-✅ Auditors group members have read-only access.
+✅ IAM Credential Report generated and analyzed.
 
-✅ RBAC model successfully implemented using IAM Groups.
+✅ Password age reviewed.
+
+✅ Unused users identified.
+
+✅ MFA status verified.
+
+✅ IAM security audit completed successfully.
